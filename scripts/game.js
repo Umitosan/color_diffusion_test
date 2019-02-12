@@ -6,26 +6,53 @@ function Game(updateDur) {
   this.lastUpdate = 0;
   this.lastDirKeyX = undefined;
   this.lastDirKeyY = undefined;
-  this.updateDuration = updateDur; // milliseconds duration between update()
+  this.updateDuration = 1000/updateDur; // milliseconds duration between update()
   this.paused = false;
   this.bg = new Image();
-  this.boxy = undefined;
   this.pausedTxt = undefined;
   this.mode = 'init';
+  this.cloud = undefined;
 
   this.init = function() {
     this.bg.src = 'diff1.jpg';
-    this.boxy = new Box(20,20,myColors.red,20,1);
     this.lastUpdate = performance.now();
+    let arr = [];
+    for (let i = 0; i < 20; i++) {
+      let newX, newY;
+      let newRad = 5;
+      while (newX === undefined) { // get unique good X and Y starting point
+        let xyGood = true;
+        let randX = getRandomIntInclusive(10,canW-10);
+        let randY = getRandomIntInclusive(10,canW-10);
+        for (let j = 0; j < arr.length; j++) {
+          if ( (Math.abs(arr[j].x - randX) < (newRad+5)) && (Math.abs(arr[j].y - randY) < (newRad+5)) ) {
+            xyGood = false;
+            break;
+          }
+        }
+        if (xyGood === true) {
+          newX = randX;
+          newY = randY;
+        }
+      }
+      // Particle(x,y,color,rad,vel)
+      let randVel = getRandomIntInclusive(1,3) * randSign();
+      let part = new Particle(/* x     */ newX,
+                              /* y     */ newY,
+                              /* color */ randColor("rgba"),
+                              /* rad   */ newRad,
+                              /* vel   */ randVel
+                             );
+      arr.push(part);
+    }
+    this.cloud = arr;
   };
 
   this.pauseIt = function() {
     myGame.paused = true;
-    // this.pausedTxt.show = true;
   };
   this.unpauseIt = function() {
     myGame.paused = false;
-    // this.pausedTxt.show = false;
     // this prevents pac from updating many times after UNpausing
     this.lastUpdate = performance.now();
     this.timeGap = 0;
@@ -37,7 +64,9 @@ function Game(updateDur) {
   };
 
   this.draw = function() {  // draw everything!
-    this.boxy.draw();
+    for (let i = 0; i < this.cloud.length; i++) {
+      this.cloud[i].draw();
+    }
   }; // end draw
 
   this.update = function() {
@@ -51,7 +80,9 @@ function Game(updateDur) {
                 //   console.log('timesToUpdate = ', timesToUpdate);
                 // }
                 // general update area
-                this.boxy.update();
+                for (let i = 0; i < this.cloud.length; i++) {
+                  this.cloud[i].update();
+                }
               }
               this.lastUpdate = performance.now();
             } // end if
