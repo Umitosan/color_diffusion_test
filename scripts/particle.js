@@ -1,3 +1,4 @@
+/*jshint esversion: 6 */
 
 function Particle(x,y,color,rad,vel) {
   this.x = x;
@@ -11,8 +12,37 @@ function Particle(x,y,color,rad,vel) {
 
   };
 
-  this.collide = function() {
+  this.checkCollidePart = function() {
+    for (let i = 0; i < myGame.cloud.length; i++) {
+      let p2 = myGame.cloud[i];
+      if ( (this.xVel > 0) &&
+           ((this.x + this.radius) > (p2.x - p2.radius)) &&
+           ((this.x + this.radius) < (p2.x + p2.radius))
+         ) {
+        this.xVel *= -1;
+      }
+      if ( (this.xVel < 0) &&
+           ((this.x - this.radius) < (p2.x + p2.radius)) &&
+           ((this.x - this.radius) > (p2.x - p2.radius)) 
+         ) {
+        this.xVel *= -1;
+      }
+    }
+  };
 
+  this.checkCollideWall = function() {
+    if ((this.xVel > 0) && ((this.x + this.radius + this.xVel) > canW)) {
+      this.xVel *= -1;
+    }
+    if ((this.xVel < 0) && ((this.x - this.radius + this.xVel) < 0)) {
+      this.xVel *= -1;
+    }
+    if ((this.yVel > 0) && ((this.y + this.radius + this.yVel) > canH)) {
+      this.yVel *= -1;
+    }
+    if ((this.yVel < 0) && ((this.y - this.radius + this.yVel) < 0)) {
+      this.yVel *= -1;
+    }
   };
 
   this.draw = function() {
@@ -27,18 +57,8 @@ function Particle(x,y,color,rad,vel) {
   };
 
   this.update = function() {
-    if ((this.xVel > 0) && ((this.x + this.radius + this.xVel) > canW)) {
-      this.xVel *= -1;
-    }
-    if ((this.xVel < 0) && ((this.x + this.xVel) < 0)) {
-      this.xVel *= -1;
-    }
-    if ((this.yVel > 0) && ((this.y + this.radius + this.yVel) > canH)) {
-      this.yVel *= -1;
-    }
-    if ((this.yVel < 0) && ((this.y + this.yVel) < 0)) {
-      this.yVel *= -1;
-    }
+    this.checkCollidePart();
+    this.checkCollideWall();
     this.x += this.xVel;
     this.y += this.yVel;
   };
