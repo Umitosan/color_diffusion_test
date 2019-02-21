@@ -17,13 +17,13 @@ function Game(updateDur) {
     this.bg.src = 'diff1.jpg';
     this.lastUpdate = performance.now();
     let arr = [];
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 10; i++) {
       let newX, newY;
-      let newRad = 5;
+      let newRad = 10;
       while (newX === undefined) { // get unique good X and Y starting point
         let xyGood = true;
-        let randX = getRandomIntInclusive(10,canW-10);
-        let randY = getRandomIntInclusive(10,canW-10);
+        let randX = getRandomIntInclusive(newRad,canW-newRad);
+        let randY = getRandomIntInclusive(newRad,canH-newRad);
         for (let j = 0; j < arr.length; j++) {
           if ( (Math.abs(arr[j].x - randX) < (newRad+5)) && (Math.abs(arr[j].y - randY) < (newRad+5)) ) {
             xyGood = false;
@@ -36,12 +36,16 @@ function Game(updateDur) {
         }
       }
       // Particle(x,y,color,rad,vel)
-      let randVel = getRandomIntInclusive(1,3) * randSign();
+      let velLowBounds = 0.5;
+      let velHighBounds = 2;
+      let randXVel = (getRandomIntInclusive(velLowBounds*10,velHighBounds*10)/10) * randSign();
+      let randYVel = (getRandomIntInclusive(velLowBounds*10,velHighBounds*10)/10) * randSign();
       let part = new Particle(/* x     */ newX,
                               /* y     */ newY,
                               /* color */ randColor("rgba"),
                               /* rad   */ newRad,
-                              /* vel   */ randVel
+                              /* xVel  */ randXVel,
+                              /* yVel  */ randYVel
                              );
       arr.push(part);
     }
