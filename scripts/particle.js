@@ -15,17 +15,37 @@ function Particle(x,y,color,rad,xVel,yVel) {
   this.checkCollidePart = function() {
     for (let i = 0; i < myGame.cloud.length; i++) {
       let p2 = myGame.cloud[i];
-      if ( (((this.xVel > 0) && ((this.x + this.radius) > (p2.x - p2.radius)) && ((this.x + this.radius) < (p2.x + p2.radius))) ||
-            ((this.xVel < 0) && ((this.x - this.radius) < (p2.x + p2.radius)) && ((this.x - this.radius) > (p2.x - p2.radius)))) &&
-           (((this.yVel > 0) && ((this.y + this.radius) > (p2.y - p2.radius)) && ((this.y + this.radius) < (p2.y + p2.radius))) ||
-            ((this.yVel < 0) && ((this.y - this.radius) < (p2.y + p2.radius)) && ((this.y - this.radius) > (p2.y - p2.radius))))
-          ) {
+
+      // old collision
+      // if ( (((this.xVel > 0) && ((this.x + this.radius) > (p2.x - p2.radius)) && ((this.x + this.radius) < (p2.x + p2.radius))) ||
+      //       ((this.xVel < 0) && ((this.x - this.radius) < (p2.x + p2.radius)) && ((this.x - this.radius) > (p2.x - p2.radius)))) &&
+      //      (((this.yVel > 0) && ((this.y + this.radius) > (p2.y - p2.radius)) && ((this.y + this.radius) < (p2.y + p2.radius))) ||
+      //       ((this.yVel < 0) && ((this.y - this.radius) < (p2.y + p2.radius)) && ((this.y - this.radius) > (p2.y - p2.radius))))
+      //     ) {
+
+      // var newVelX1 = (velX1 * (mass1 - mass2) + (2 * mass2 * velX2)) / (mass1 + mass2)
+      // var newVelX2 = (velX2 * (mass2 - mass1) + (2 * mass1 * velX1)) / (mass1 + mass2)
+      // var newVelY1 = (velY1 * (mass1 - mass2) + (2 * mass2 * velY2)) / (mass1 + mass2)
+      // var newVelY2 = (velY2 * (mass2 - mass1) + (2 * mass1 * velY1)) / (mass1 + mass2)
+
+      // collision distance: R= r1 + r2
+      // current distance:    diagDistance = sqrt( (x2-x1)^2 + (y2-y2)^2 )
+      if ( (Math.abs(this.xVel) > 0) && (Math.abs(p2.xVel) > 0) ) {
+        let collisionDistance = (this.radius + p2.radius);
+        // diagonal distance between circles = sqrt( |p2.x - p1.x|^2 + |p2.y - p1.y|^2 )
+        let currentDiagDistance = Math.sqrt( Math.pow(Math.abs(p2.x-this.x),2) + Math.pow(Math.abs(p2.y-this.y),2) );
+        if ( ( currentDiagDistance < collisionDistance  ) && (currentDiagDistance !== 0) ) {
+          console.log('------------------------');
+          console.log('collide');
+          console.log('x,y x2,y2 = ',+this.x+","+this.y+" "+p2.x+","+p2.y);
+          console.log('collisionDistance= ',collisionDistance);
+          console.log('currentDiagDistance= ',currentDiagDistance);
+          console.log('this.xVel,p2.xVel = ', this.xVel+","+p2.xVel);
           // conservation of momentum dictactes...
           //  (very oversimplified)
           // BEOFRE  Mas1*Vel1  + (mass2 * vel2) = AFTER (mass1 * vector1) + (mass2 * vector2)
-          console.log('collide');
-          console.log("BEFORE p1.xVel,p1.yVel: "+ this.xVel,this.yVel);
-          console.log("BEFORE p2.xVel,yVel: "+ p2.xVel,p2.yVel);
+          // console.log("BEFORE p1.xVel,p1.yVel: "+ this.xVel,this.yVel);
+          // console.log("BEFORE p2.xVel,yVel: "+ p2.xVel,p2.yVel);
 
           var x1 = this.x;
           var y1 = this.y;
@@ -38,53 +58,66 @@ function Particle(x,y,color,rad,xVel,yVel) {
           let tRad1,tRad2;
           let quadrant;
           let inv;
-          if ( (x1 <= x2) && (y1 <= y2) ) {  // c0 left and above c1
-            console.log("c0 left and above c1");
-            quadrant = 3;
-            tRad1 = Math.atan( (y2-y1) / (x2-x1) );
-            tRad2 = (Math.PI/2) - tRad1;
-            // let angle1 = getDegreeAngle(tRad1);
-            // let angle2 = getDegreeAngle(tRad2);
+          let angle1,angle2;
+          let initXVel1 = this.xVel;
+          let initYVel1 = this.yVel;
+          let initXVel2 = p2.xVel;
+          let initYVel2 = p2.yVel;
+            if ( (x1 <= x2) && (y1 <= y2) ) {  // c0 left and above c1
+              console.log("c0 left and above c1");
+              quadrant = 3;
+              tRad1 = Math.atan( (y2-y1) / (x2-x1) );
+              tRad2 = (Math.PI/2) - tRad1;
+              angle1 = getDegreeAngle(tRad1);
+              angle2 = getDegreeAngle(tRad2);
+              console.log("angle1, angle2 : "+angle1+","+angle2);
+            } else if ( (x1 <= x2) && (y1 >= y2) ) {  // c0 left and below c1
+              console.log("c0 left and below c1");
+              quadrant = 2;
+              tRad1 = Math.atan( (y1-y2) / (x2-x1));
+              tRad2 = (Math.PI/2) - tRad1;
+              angle1 = getDegreeAngle(tRad1);
+              angle2 = getDegreeAngle(tRad2);
+              console.log("angle1, angle2 : "+angle1+","+angle2);
+            } else if ( (x1 >= x2) && (y1 <= y2) ) {  // p0 right and above p1
+              console.log("p0 right and above p1");
+              quadrant = 4;
+              tRad1 = Math.atan( (y2-y1) / (x1-x2) );
+              tRad2 = (Math.PI/2) - tRad1;
+              angle1 = getDegreeAngle(tRad1);
+              angle2 = getDegreeAngle(tRad2);
+              console.log("angle1, angle2 : "+angle1+","+angle2);
+            } else if ( (x1 >= x2) && (y1 >= y2) ) {  // p0 right and below p1
+              console.log("p0 right and below p1");
+              quadrant = 1;
+              tRad1 = Math.atan( (y1-y2) / (x1-x2) );
+              tRad2 = (Math.PI/2) - tRad1;
+              angle1 = getDegreeAngle(tRad1);
+              angle2 = getDegreeAngle(tRad2);
+              console.log("angle1, angle2 : "+angle1+","+angle2);
+            } else {
+              console.log("arrow update error");
+              console.log("x1 y1 x2 y2: "+x1+" "+y1+" "+x2+" "+y2);
+            } // if
 
-          } else if ( (x1 <= x2) && (y1 >= y2) ) {  // c0 left and below c1
-            console.log("c0 left and below c1");
-            quadrant = 2;
-            tRad1 = Math.atan( (y1-y2) / (x2-x1));
-            tRad2 = (Math.PI/2) - tRad1;
+            // var newVelX1 = (velX1 * (mass1 - mass2) + (2 * mass2 * velX2)) / (mass1 + mass2)
+            // var newVelX2 = (velX2 * (mass2 - mass1) + (2 * mass1 * velX1)) / (mass1 + mass2)
+            // var newVelY1 = (velY1 * (mass1 - mass2) + (2 * mass2 * velY2)) / (mass1 + mass2)
+            // var newVelY2 = (velY2 * (mass2 - mass1) + (2 * mass1 * velY1)) / (mass1 + mass2)
 
-          } else if ( (x1 >= x2) && (y1 <= y2) ) {  // p0 right and above p1
-            console.log("p0 right and above p1");
-            quadrant = 4;
-            tRad1 = Math.atan( (y2-y1) / (x1-x2) );
-            tRad2 = (Math.PI/2) - tRad1;
+            this.xVel = ( initXVel1 * (10 - 10) + (2 * 10 * initXVel2)) / (10 + 10);
+            this.yVel = ( initYVel1 * (10 - 10) + (2 * 10 * initYVel2)) / (10 + 10);
+            p2.xVel = ( initXVel2 * (10 - 10) + (2 * 10 * initXVel1)) / (10 + 10);
+            p2.yVel = ( initYVel2 * (10 - 10) + (2 * 10 * initYVel1)) / (10 + 10);
 
-          } else if ( (x1 >= x2) && (y1 >= y2) ) {  // p0 right and below p1
-            console.log("p0 right and below p1");
-            quadrant = 1;
-            tRad1 = Math.atan( (y1-y2) / (x1-x2) );
-            tRad2 = (Math.PI/2) - tRad1;
+            // preemptive apply new movement right away
+            this.x += this.xVel;
+            this.y += this.yVel;
+            p2.x += p2.xVel;
+            p2.y += p2.yVel;
 
-          } else {
-            console.log("arrow update error");
-            console.log("x1 y1 x2 y2: "+x1+" "+y1+" "+x2+" "+y2);
-          } // if
-          console.log("angle1, angle2 : "+getDegreeAngle(tRad1)+","+getDegreeAngle(tRad2));
-
-          // console.assert(1 === 1, 'x vel not ');
-          // let sumBefore = ( x1Vel*Math.cos(tRad1) ) + ( x2Vel*Math.cos(tRad2) );
-          // console.log('sumBefore : ', sumBefore);
-          //
-          // let p1xVel = this.xVel;
-          // let p1yVel = this.yVel;
-          // this.xVel = ;
-          // this.yVel = ;
-          // p2.xVel = p1xVel;
-          // p2.yVel = p1yVel;
-          console.log("AFTER p1.xVel,p1.yVel: "+ this.xVel,this.yVel);
-          // console.log("AFTER p2.xVel,yVel: "+ p2.xVel,p2.yVel);
-          // let sumAfter = ( x1Vel*Math.cos(tRad1) ) + ( x2Vel*Math.cos(tRad2) );
-          // console.log('sumAfter : ', sumAfter);
-          myGame.pauseIt();
+            // myGame.pauseIt();
+          }
       }
     }
   };
@@ -116,8 +149,8 @@ function Particle(x,y,color,rad,xVel,yVel) {
   };
 
   this.update = function() {
-    this.checkCollidePart();
     this.checkCollideWall();
+    this.checkCollidePart();
     this.x += this.xVel;
     this.y += this.yVel;
   };
