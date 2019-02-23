@@ -17,9 +17,9 @@ function Game(updateDur) {
     this.bg.src = 'diff1.jpg';
     this.lastUpdate = performance.now();
     let arr = [];
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 30; i++) {
       let newX, newY;
-      let newRad = 10;
+      let newRad = 8;
       while (newX === undefined) { // get unique good X and Y starting point
         let xyGood = true;
         let randX = getRandomIntInclusive(newRad,canW-newRad);
@@ -36,8 +36,8 @@ function Game(updateDur) {
         }
       }
       // Particle(x,y,color,rad,vel)
-      let velLowBounds = 0.5;
-      let velHighBounds = 2;
+      let velLowBounds = 0.1;
+      let velHighBounds = 1.1;
       let randXVel = (getRandomIntInclusive(velLowBounds*10,velHighBounds*10)/10) * randSign();
       let randYVel = (getRandomIntInclusive(velLowBounds*10,velHighBounds*10)/10) * randSign();
       let part = new Particle(/* x     */ newX,
